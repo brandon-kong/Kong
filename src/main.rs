@@ -1,6 +1,13 @@
 use std::fs;
 use std::io;
 
+mod util {
+    pub mod tokens {
+        pub mod lexer;
+        pub mod parser;
+    }
+}
+
 fn main() {
 
     loop {
@@ -21,7 +28,12 @@ fn main() {
                     Some(dir) => {
                         println!("Kong is running...");
                         match fs::read_to_string(dir) {
-                            Ok(contents) => println!("{}", contents),
+                            Ok(contents) => {
+                                let lexed = util::tokens::lexer::lexer(&contents);
+                                let parsed =util::tokens::parser::parse(lexed);
+                                let result = parsed.eval();
+                                println!("{}", result);
+                            }
                             Err(e) => eprintln!("Failed to read file: {}", e),
                         }
                     },
@@ -51,6 +63,10 @@ fn main() {
                         println!("No directory provided. Usage: ls [dir]");
                     }
                 }
+            },
+
+            Some("exit") => {
+                break;
             },
 
             Some(_) => {
